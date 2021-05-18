@@ -76,11 +76,11 @@ import static android.hardware.biometrics.BiometricManager.Authenticators.DEVICE
 
 
 public class MainActivity extends AppCompatActivity {
-    HashMap<String, byte[]> map = new HashMap<>();//Creating HashMap
 
-    Button btEncrypt;
-    Button btDecrypt;
+   // Button btDecrypt;
+    Button btEncryptAll;
     Button btDecryptAll;
+    Button btEncryptOnReceipt;
     EmailUtilities utilities;
 
 
@@ -90,17 +90,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        btEncrypt = findViewById(R.id.bt_encrypt);
-        btDecrypt = findViewById(R.id.bt_decrypt);
+        //Decrypt single Mail button
+        // btDecrypt = findViewById(R.id.bt_decrypt);
+        btEncryptAll = findViewById(R.id.bt_encryptAll);
         btDecryptAll = findViewById(R.id.bt_decryptAll);
+        btEncryptOnReceipt = findViewById(R.id.bt_enableEncryptOnReceipt);
 
 
         Intent intent = getIntent();
         utilities = (EmailUtilities) intent.getParcelableExtra("emailClass");
 
-
-/*        new Thread(new Runnable() {
+        btEncryptOnReceipt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+       new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -127,73 +130,25 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("Message Encrypted","Message is already encrypted");
                                }
                            }
-                    Thread.sleep(5000);
-                } else{
-                           Thread.sleep(5000);
-                       }
+                        Thread.sleep(5000);
+                    } else{
+                               Thread.sleep(5000);
+                           }
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
 
+            }).start();
+
             }
-
-        }).start();*/
-/*
-        Store store = utilities.getStore();
-        try {
-            Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_WRITE);
-            Message messages[] = inbox.getMessages();
-            for (int a = 0;a<messages.length;a++) {
-                Log.d("content", getTextFromMessage(messages[a]));
-            }
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-*/
-
-/*        sEmail= intent.getStringExtra("email");
-        sPassword = intent.getStringExtra("password");
-        Toast.makeText(MainActivity.this, sEmail+sPassword, Toast.LENGTH_LONG).show();*/
-
-    /*    StringBuilder builder = new StringBuilder();
-        for (Provider provider : Security.getProviders()) {
-            builder.append("provider: ")
-                    .append(provider.getName())
-                    .append(" ")
-                    .append(provider.getVersion())
-                    .append("(")
-                    .append(provider.getInfo())
-                    .append(")\n");
-        }
-        String providers = builder.toString();
-        Log.d("Providers",providers);
-*/
-/*
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    while(true){
-                        readMails();
-                        Thread.sleep(10000);
-                    }
-                } catch (Exception e) {
-                    Log.e("ReadMails", e.getMessage(), e);
-                }
-            }
-
-        }).start();
-
-*/
+        });
 
 
-        btEncrypt.setOnClickListener(new View.OnClickListener() {
+        btEncryptAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new Thread(new Runnable() {
@@ -235,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btDecrypt.setOnClickListener(new View.OnClickListener() {
+        //Decrypt Single mail
+/*        btDecrypt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new Thread(new Runnable() {
@@ -257,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 }).start();
 
             }
-        });
+        });*/
 
         btDecryptAll.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -28,13 +28,11 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class SendMessageActivity extends AppCompatActivity {
+
     EditText etTo,etSubject, etMessage;
     Button btSend;
-
-    //Might change
     EmailUtilities utilities;
-    String sEmail;
-    String sPassword;
+    String to,subject,content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,80 +44,33 @@ public class SendMessageActivity extends AppCompatActivity {
         etMessage = findViewById(R.id.et_message);
         btSend = findViewById(R.id.bt_send);
 
-        //To do Retrieve email and password or carry out send from EmailUtilities class
         Intent intent = getIntent();
         utilities = (EmailUtilities) intent.getParcelableExtra("emailClass");
 
         btSend.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Properties properties = new Properties();
-                //Throws an authentication error
-                /*properties.put("mail.smtp.auth", "true");
-                properties.put("mail.smtp.starttls.enable", "true");
-                properties.put("mail.smtp.host", "smtp.gmail.com");
-                properties.put("mail.smtp.port", "465");*/
-
-
-
-                properties.put("mail.smtp.host", "smtp.gmail.com");
-                properties.put("mail.smtp.socketFactory.port", "465");
-                properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                properties.put("mail.smtp.auth", "true");
-                properties.put("mail.smtp.port", "465");
-
-                Session session = Session.getInstance(properties,
-                        new Authenticator() {
-                            @Override
-                            protected PasswordAuthentication getPasswordAuthentication() {
-                                return new PasswordAuthentication(sEmail, sPassword);
-                            }
-                        });
+              utilities.AuthenticateSMTP();
+              to = etTo.getText().toString();
+              subject = etSubject.getText().toString();
+              content = etMessage.getText().toString();
 
                 try {
-                    //create a MimeMessage object
-                    Message message = new MimeMessage(session);
-
-                    //set From email field
-                    message.setFrom(new InternetAddress(sEmail));
-
-                    //set To email field
-                    message.setRecipients(Message.RecipientType.TO,
-                            InternetAddress.parse(etTo.getText().toString()));
-
-                    //Alternative way of setting recipients
-                    // message.addRecipient(Message.RecipientType.TO, new InternetAddress("ogyunkasimov@gmail.com"));
-
-                    //set email subject field
-                    message.setSubject(etSubject.getText().toString());
-
-                    //set the content of the email message
-                    message.setText(etMessage.getText().toString());
-
-                    //send the email message
-               /*     new Thread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            try {
-
-                                Transport.send(message);
-                            } catch (Exception e) {
-                                Log.e("SendMail", e.getMessage(), e);
-                            }
-                        }
-
-                    }).start();*/
+                   Message newMail = utilities.createMailForSending(to,subject,content);
 
                     //Works
                     //Alternative to thread
-                    new SendMail().execute(message);
+                    new SendMail().execute(newMail);
                     Log.d("Success:", "Email Message Sent Successfully");
 
                     //Clear text fields
                     etTo.setText("");
                     etSubject.setText("");
                     etMessage.setText("");
+
+                    to ="";
+                    subject="";
+                    content ="";
 
 
                 } catch (MessagingException e) {

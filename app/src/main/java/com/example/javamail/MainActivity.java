@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     Button btDecryptAll;
     Button btEncryptOnReceipt;
     EmailUtilities utilities;
+    Button btComposeNewMail;
 
 
     @SuppressLint("WrongConstant")
@@ -95,10 +96,21 @@ public class MainActivity extends AppCompatActivity {
         btEncryptAll = findViewById(R.id.bt_encryptAll);
         btDecryptAll = findViewById(R.id.bt_decryptAll);
         btEncryptOnReceipt = findViewById(R.id.bt_enableEncryptOnReceipt);
+        btComposeNewMail = findViewById(R.id.bt_composeNewMail);
+
 
 
         Intent intent = getIntent();
         utilities = (EmailUtilities) intent.getParcelableExtra("emailClass");
+
+        btComposeNewMail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, SendMessageActivity.class);
+                i.putExtra("emailClass", (Parcelable) utilities);
+                startActivity(i);
+                                        }
+        });
 
         btEncryptOnReceipt.setOnClickListener(new View.OnClickListener() {
             @Override

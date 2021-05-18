@@ -28,6 +28,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.mail.AuthenticationFailedException;
+import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -37,6 +38,7 @@ import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -49,6 +51,7 @@ public class EmailUtilities implements Parcelable {
    private String password;
    private Store store;
    private Session session;
+   private Session smtpSession;
    private Activity activity;
    private Properties properties;
    private Message messages[];
@@ -531,7 +534,44 @@ public class EmailUtilities implements Parcelable {
         return result;
     }
 
+public void AuthenticateSMTP(){
+    Properties properties = new Properties();
+    properties.put("mail.smtp.host", "smtp.gmail.com");
+    properties.put("mail.smtp.socketFactory.port", "465");
+    properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+    properties.put("mail.smtp.auth", "true");
+    properties.put("mail.smtp.port", "465");
 
+    smtpSession = Session.getInstance(properties,
+            new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(email, password);
+                }
+            });
+
+}
+public Message createMailForSending(String to, String subject, String content) throws MessagingException {
+
+        //create a MimeMessage object
+    Message message = new MimeMessage(smtpSession);
+
+    //set From email field
+    message.setFrom(new InternetAddress(email));
+
+    //set To email field
+    message.setRecipients(Message.RecipientType.TO,
+            InternetAddress.parse(to));
+
+    //set email subject field
+    message.setSubject(subject);
+
+    //set the content of the email message
+    message.setText(content);
+
+    return message;
+
+}
 
 }
 

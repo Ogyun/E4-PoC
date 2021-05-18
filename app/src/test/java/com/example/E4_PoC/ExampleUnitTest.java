@@ -1,4 +1,4 @@
-package com.example.javamail;
+package com.example.E4_PoC;
 
 import org.junit.Test;
 

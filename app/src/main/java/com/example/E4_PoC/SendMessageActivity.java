@@ -1,4 +1,4 @@
-package com.example.javamail;
+package com.example.E4_PoC;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,18 +14,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.E4_PoC.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.Properties;
-
-import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 public class SendMessageActivity extends AppCompatActivity {
 

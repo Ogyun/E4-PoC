@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.example.javamail"
+        applicationId "com.example.E4_PoC"
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1

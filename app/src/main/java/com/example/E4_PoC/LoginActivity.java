@@ -17,8 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailField, passwordField;
     private Button login;
     private EmailUtilities emailUtilities;
-    private String email;
-    private String password;
+    private EmailAccount account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +33,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                /* Obtain user inputs */
-                email = emailField.getText().toString();
-                password = passwordField.getText().toString();
+                /* Create email account and get email and password for input fields */
+                account = new EmailAccount(emailField.getText().toString(),passwordField.getText().toString());
 
                 //Create a new instance of EmailUtilities and pass the required parameters
-                emailUtilities = new EmailUtilities(LoginActivity.this,email,password);
+                emailUtilities = new EmailUtilities(LoginActivity.this,account);
 
                 /* Validate input fields */
-                if (email.isEmpty() || password.isEmpty()) {
+                if (account.getEmailAddress().isEmpty() || account.getPassword().isEmpty()) {
                     /* Display a message toast to user to enter credentials */
                     Toast.makeText(LoginActivity.this, "Please enter email and password!", Toast.LENGTH_LONG).show();
 
@@ -54,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
                               if (emailUtilities.Authenticate()) {
 
                                   Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                  i.putExtra("emailClass", (Parcelable) emailUtilities);
+                                  i.putExtra("emailClass", (Parcelable) account);
                                   startActivity(i);
                                   finish();
                                   return;

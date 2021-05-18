@@ -3,12 +3,19 @@ package com.example.E4_PoC;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.E4_PoC.R;
@@ -24,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     Button btEncryptOnReceipt;
     EmailUtilities utilities;
     Button btComposeNewMail;
+    EmailAccount account;
+    AlertDialog.Builder alertDialog;
 
 
     @SuppressLint("WrongConstant")
@@ -39,16 +48,54 @@ public class MainActivity extends AppCompatActivity {
         btEncryptOnReceipt = findViewById(R.id.bt_enableEncryptOnReceipt);
         btComposeNewMail = findViewById(R.id.bt_composeNewMail);
 
+        LinearLayout layout = new LinearLayout(getApplicationContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        alertDialog = new AlertDialog.Builder(MainActivity.this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle("Please set an Encryption/Decryption password");
+
+        alertDialog.setCancelable(false);
+
+        EditText encryptionPwd = new EditText(MainActivity.this);
+        encryptionPwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        encryptionPwd.setHint("Enter password");
+        layout.addView(encryptionPwd);
+
+        EditText confirmEncryptionPwd = new EditText(MainActivity.this);
+        confirmEncryptionPwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        confirmEncryptionPwd.setHint("Confirm password");
+        layout.addView(confirmEncryptionPwd);
+
+        alertDialog.setView(layout);
+
+        // Setting ok button
+        alertDialog.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        if (encryptionPwd.getText() == confirmEncryptionPwd.getText()) {
+                            account.setEncryptionPassword(encryptionPwd.getText().toString());
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Passwords don't match", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+
+        alertDialog.show();
 
 
         Intent intent = getIntent();
-        utilities = (EmailUtilities) intent.getParcelableExtra("emailClass");
+        account = (EmailAccount) intent.getParcelableExtra("emailClass");
+        utilities = new EmailUtilities(MainActivity.this,account);
 
         btComposeNewMail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, SendMessageActivity.class);
-                i.putExtra("emailClass", (Parcelable) utilities);
+                i.putExtra("emailClass", (Parcelable) account);
                 startActivity(i);
                                         }
         });
@@ -209,6 +256,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
     });
+
+
 
     }
 }

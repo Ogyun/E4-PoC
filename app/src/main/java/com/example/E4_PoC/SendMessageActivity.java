@@ -27,6 +27,7 @@ public class SendMessageActivity extends AppCompatActivity {
     Button btSend;
     EmailUtilities utilities;
     String to,subject,content;
+    EmailAccount account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,8 @@ public class SendMessageActivity extends AppCompatActivity {
         btSend = findViewById(R.id.bt_send);
 
         Intent intent = getIntent();
-        utilities = (EmailUtilities) intent.getParcelableExtra("emailClass");
+        account = (EmailAccount) intent.getParcelableExtra("emailClass");
+        utilities = new EmailUtilities(SendMessageActivity.this,account);
 
         btSend.setOnClickListener(new View.OnClickListener(){
             @Override

@@ -36,7 +36,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-public class EmailUtilities implements Parcelable {
+public class EmailUtilities {
 
    private String email;
    private String password;
@@ -51,13 +51,13 @@ public class EmailUtilities implements Parcelable {
    private SecretKeySpec keySpec;
    private Folder inbox;
 
-    public EmailUtilities(Activity activity,String email, String password){
-       this.email = email;
-       this.password = password;
+    public EmailUtilities(Activity activity,EmailAccount account){
+       this.email = account.getEmailAddress();
+       this.password = account.getPassword();
        this.activity = activity;
    }
 
-    protected EmailUtilities(Parcel in) {
+   /* protected EmailUtilities(Parcel in) {
         email = in.readString();
         password = in.readString();
 
@@ -83,7 +83,7 @@ public class EmailUtilities implements Parcelable {
         dest.writeString(email);
         dest.writeString(password);
     }
-
+*/
     public Message [] getMessages(){
         return messages;
     }
@@ -380,8 +380,10 @@ public class EmailUtilities implements Parcelable {
                 //Get the last message
                 Message m = configFolder.getMessage(messages.length);
 
+                //Read salt from the Config folder
                  byte saltFromServer[] = readConfig(m);
 
+                 //Generate secret key
                  keySpec = generateSecretKey(password,saltFromServer,iterations);
             }
         } catch (Exception e){
@@ -525,44 +527,44 @@ public class EmailUtilities implements Parcelable {
         return result;
     }
 
-public void AuthenticateSMTP(){
-    Properties properties = new Properties();
-    properties.put("mail.smtp.host", "smtp.gmail.com");
-    properties.put("mail.smtp.socketFactory.port", "465");
-    properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.port", "465");
+    public void AuthenticateSMTP(){
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", "smtp.gmail.com");
+        properties.put("mail.smtp.socketFactory.port", "465");
+        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.port", "465");
 
-    smtpSession = Session.getInstance(properties,
-            new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(email, password);
-                }
-            });
+        smtpSession = Session.getInstance(properties,
+                new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(email, password);
+                    }
+                });
 
-}
-public Message createMailForSending(String to, String subject, String content) throws MessagingException {
+    }
+    public Message createMailForSending(String to, String subject, String content) throws MessagingException {
 
-        //create a MimeMessage object
-    Message message = new MimeMessage(smtpSession);
+            //create a MimeMessage object
+        Message message = new MimeMessage(smtpSession);
 
-    //set From email field
-    message.setFrom(new InternetAddress(email));
+        //set From email field
+        message.setFrom(new InternetAddress(email));
 
-    //set To email field
-    message.setRecipients(Message.RecipientType.TO,
-            InternetAddress.parse(to));
+        //set To email field
+        message.setRecipients(Message.RecipientType.TO,
+                InternetAddress.parse(to));
 
-    //set email subject field
-    message.setSubject(subject);
+        //set email subject field
+        message.setSubject(subject);
 
-    //set the content of the email message
-    message.setText(content);
+        //set the content of the email message
+        message.setText(content);
 
-    return message;
+        return message;
 
-}
+    }
 
 }
 

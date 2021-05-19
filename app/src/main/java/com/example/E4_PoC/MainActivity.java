@@ -48,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
         btEncryptOnReceipt = findViewById(R.id.bt_enableEncryptOnReceipt);
         btComposeNewMail = findViewById(R.id.bt_composeNewMail);
 
+
+        Intent intent = getIntent();
+        account = (EmailAccount) intent.getParcelableExtra("emailClass");
+
         LinearLayout layout = new LinearLayout(getApplicationContext());
         layout.setOrientation(LinearLayout.VERTICAL);
 
@@ -84,17 +88,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if (encryptionPwd.getText().toString().equals(confirmEncryptionPwd.getText().toString())) {
                     account.setEncryptionPassword(encryptionPwd.getText().toString());
+                    utilities = new EmailUtilities(MainActivity.this,account);
                     dialog.dismiss();
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Passwords don't match", Toast.LENGTH_LONG).show();
                 }
-        }
+            }
         });
 
-        Intent intent = getIntent();
-        account = (EmailAccount) intent.getParcelableExtra("emailClass");
-        utilities = new EmailUtilities(MainActivity.this,account);
 
         btComposeNewMail.setOnClickListener(new View.OnClickListener() {
             @Override

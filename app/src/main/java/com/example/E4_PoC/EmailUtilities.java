@@ -50,11 +50,13 @@ public class EmailUtilities {
    private int iterations  = 5000;
    private SecretKeySpec keySpec;
    private Folder inbox;
+   private String encryptionPassword;
 
     public EmailUtilities(Activity activity,EmailAccount account){
        this.email = account.getEmailAddress();
        this.password = account.getPassword();
        this.activity = activity;
+       this.encryptionPassword = account.getEncryptionPassword();
    }
 
    /* protected EmailUtilities(Parcel in) {
@@ -369,7 +371,7 @@ public class EmailUtilities {
                     configFolder.appendMessages(newMessages);
 
                     salt = saltBytes;
-                    keySpec = generateSecretKey(password,salt,iterations);
+                    keySpec = generateSecretKey(encryptionPassword,salt,iterations);
 
                 }
             } else {
@@ -384,7 +386,7 @@ public class EmailUtilities {
                  byte saltFromServer[] = readConfig(m);
 
                  //Generate secret key
-                 keySpec = generateSecretKey(password,saltFromServer,iterations);
+                 keySpec = generateSecretKey(encryptionPassword,saltFromServer,iterations);
             }
         } catch (Exception e){
             e.printStackTrace();

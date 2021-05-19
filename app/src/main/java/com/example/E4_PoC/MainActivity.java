@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     EmailUtilities utilities;
     Button btComposeNewMail;
     EmailAccount account;
-    AlertDialog.Builder alertDialog;
+    AlertDialog.Builder builder;
 
 
     @SuppressLint("WrongConstant")
@@ -51,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout layout = new LinearLayout(getApplicationContext());
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        alertDialog = new AlertDialog.Builder(MainActivity.this);
+        builder = new AlertDialog.Builder(MainActivity.this);
 
         // Setting Dialog Title
-        alertDialog.setTitle("Please set an Encryption/Decryption password");
+        builder.setTitle("Please set an Encryption/Decryption password");
 
-        alertDialog.setCancelable(false);
+        builder.setCancelable(false);
 
         EditText encryptionPwd = new EditText(MainActivity.this);
         encryptionPwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -68,24 +68,29 @@ public class MainActivity extends AppCompatActivity {
         confirmEncryptionPwd.setHint("Confirm password");
         layout.addView(confirmEncryptionPwd);
 
-        alertDialog.setView(layout);
+        builder.setView(layout);
+        builder.setPositiveButton("OK",null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
-        // Setting ok button
-        alertDialog.setPositiveButton("Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
-                        if (encryptionPwd.getText() == confirmEncryptionPwd.getText()) {
-                            account.setEncryptionPassword(encryptionPwd.getText().toString());
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(), "Passwords don't match", Toast.LENGTH_LONG).show();
-                        }
 
-                    }
-                });
-
-        alertDialog.show();
-
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (encryptionPwd.getText().toString().isEmpty() || confirmEncryptionPwd.getText().toString().isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
+                }
+                else if (encryptionPwd.getText().toString().equals(confirmEncryptionPwd.getText().toString())) {
+                    account.setEncryptionPassword(encryptionPwd.getText().toString());
+                    dialog.dismiss();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Passwords don't match", Toast.LENGTH_LONG).show();
+                }
+        }
+        });
 
         Intent intent = getIntent();
         account = (EmailAccount) intent.getParcelableExtra("emailClass");

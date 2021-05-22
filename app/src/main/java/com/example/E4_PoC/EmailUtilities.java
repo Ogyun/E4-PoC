@@ -409,7 +409,8 @@ public class EmailUtilities {
 
     private byte[] generateSalt(){
         //Random salt for next step
-        byte[] salt = new byte[16];
+        //Salt length same size as the associated HmacSHA256
+        byte[] salt = new byte[32];
         SecureRandom random = new SecureRandom();
         random.nextBytes(salt);
         return salt;

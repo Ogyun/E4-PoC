@@ -170,9 +170,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
-        //Decrypt single Mail button
-        // btDecrypt = findViewById(R.id.bt_decrypt);
-
         Intent intent = getIntent();
         account = (EmailAccount) intent.getParcelableExtra("emailClass");
 

@@ -1,0 +1,34 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+    <item
+        android:id="@+id/EncryptAll"
+        android:icon="@drawable/encrypt"
+        app:showAsAction="always"
+        android:title="Encrypt All Emails"
+        android:onClick="encryptAll">
+    </item>
+    <item
+        android:id="@+id/DecryptAll"
+        android:icon="@drawable/decrypt"
+        app:showAsAction="always"
+        android:title="Decrypt All Emails"
+        android:onClick="decryptAll">
+    </item>
+   <item
+        android:id="@+id/Auto_encrypt"
+        android:icon="@drawable/auto_encrypt"
+        app:showAsAction="always"
+        android:title="Enable auto encrypt"
+        android:onClick="enableAutoEncrypt">
+    </item>
+    <item
+        android:id="@+id/New_mail"
+        android:icon="@drawable/new_mail"
+        app:showAsAction="always"
+        android:title="Compose a new mail"
+        android:onClick="composeNewMail">
+    </item>
+
+</menu>

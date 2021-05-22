@@ -1,6 +1,7 @@
 package com.example.E4_PoC;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -11,6 +12,9 @@ import android.os.Parcelable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,13 +30,134 @@ import javax.mail.Message;
 public class MainActivity extends AppCompatActivity {
 
    // Button btDecrypt;
-    Button btEncryptAll;
-    Button btDecryptAll;
-    Button btEncryptOnReceipt;
     EmailUtilities utilities;
-    Button btComposeNewMail;
     EmailAccount account;
     AlertDialog.Builder builder;
+
+    public void encryptAll(MenuItem mi){
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    utilities.Authenticate();
+                    utilities.createConfig();
+                    utilities.readMails();
+                    for (Message  decryptedMail:utilities.getMessages()) {
+
+                        if (!utilities.isEncrypted(decryptedMail)) {
+                            byte[] decryptedMailContent = utilities.readPlainMailAsByteArray(decryptedMail);
+
+                            utilities.deleteMail(decryptedMail);
+
+                            Message encryptedtedMail = utilities.createEncryptedMail(decryptedMailContent);
+                            utilities.appendSingleMail(encryptedtedMail);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            });
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public void decryptAll(MenuItem mi){
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    utilities.Authenticate();
+                    utilities.createConfig();
+                    utilities.readMails();
+                    for (Message  encryptedMail:utilities.getMessages()) {
+
+                        if (utilities.isEncrypted(encryptedMail)) {
+                            String decryptedMailContent = utilities.readEncryptedMail(encryptedMail);
+
+                            utilities.deleteMail(encryptedMail);
+
+                            Message decryptedMail = utilities.createDecryptedMail(decryptedMailContent);
+                            utilities.appendSingleMail(decryptedMail);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            });
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public void enableAutoEncrypt(MenuItem mi){
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    utilities.Authenticate();
+                    utilities.createConfig();
+                    utilities.readMails();
+                    while(true){
+                        boolean newMail = utilities.hasNewMail();
+                        if(newMail){
+                            for (Message  lastMail:utilities.getMessages()) {
+
+
+                                // Message lastMail = utilities.getLastMail();
+                                if (!utilities.isEncrypted(lastMail)) {
+                                    byte[] plainMail = utilities.readPlainMailAsByteArray(lastMail);
+
+                                    utilities.deleteMail(lastMail);
+
+                                    Message encryptedMessage = utilities.createEncryptedMail(plainMail);
+                                    utilities.appendSingleMail(encryptedMessage);
+                                } else {
+                                    Log.d("Message Encrypted","Message is already encrypted");
+                                }
+                            }
+                            Thread.sleep(5000);
+                        } else{
+                            Thread.sleep(5000);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }).start();
+    }
+    public void composeNewMail(MenuItem mi){
+        Intent i = new Intent(MainActivity.this, SendMessageActivity.class);
+        i.putExtra("emailClass", (Parcelable) account);
+        startActivity(i);
+    }
+
 
 
     @SuppressLint("WrongConstant")
@@ -41,13 +166,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Create toolbar
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+
         //Decrypt single Mail button
         // btDecrypt = findViewById(R.id.bt_decrypt);
-        btEncryptAll = findViewById(R.id.bt_encryptAll);
-        btDecryptAll = findViewById(R.id.bt_decryptAll);
-        btEncryptOnReceipt = findViewById(R.id.bt_enableEncryptOnReceipt);
-        btComposeNewMail = findViewById(R.id.bt_composeNewMail);
-
 
         Intent intent = getIntent();
         account = (EmailAccount) intent.getParcelableExtra("emailClass");
@@ -98,105 +222,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        btComposeNewMail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, SendMessageActivity.class);
-                i.putExtra("emailClass", (Parcelable) account);
-                startActivity(i);
-                                        }
-        });
-
-        btEncryptOnReceipt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-       new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                try {
-                        utilities.Authenticate();
-                        utilities.createConfig();
-                        utilities.readMails();
-                    while(true){
-                       boolean newMail = utilities.hasNewMail();
-                       if(newMail){
-                           for (Message  lastMail:utilities.getMessages()) {
-
-
-                               // Message lastMail = utilities.getLastMail();
-                               if (!utilities.isEncrypted(lastMail)) {
-                                   byte[] plainMail = utilities.readPlainMailAsByteArray(lastMail);
-
-                                   utilities.deleteMail(lastMail);
-
-                                   Message encryptedMessage = utilities.createEncryptedMail(plainMail);
-                                   utilities.appendSingleMail(encryptedMessage);
-                               } else {
-                                Log.d("Message Encrypted","Message is already encrypted");
-                               }
-                           }
-                        Thread.sleep(5000);
-                    } else{
-                               Thread.sleep(5000);
-                           }
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-            }).start();
-
-            }
-        });
-
-
-        btEncryptAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        try {
-                            utilities.Authenticate();
-                            utilities.createConfig();
-                            utilities.readMails();
-                            for (Message  decryptedMail:utilities.getMessages()) {
-
-                                if (!utilities.isEncrypted(decryptedMail)) {
-                                    byte[] decryptedMailContent = utilities.readPlainMailAsByteArray(decryptedMail);
-
-                                    utilities.deleteMail(decryptedMail);
-
-                                    Message encryptedtedMail = utilities.createEncryptedMail(decryptedMailContent);
-                                    utilities.appendSingleMail(encryptedtedMail);
-                                } else {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
-                                            return;
-                                        }
-                                    });
-                                }
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }).start();
-
-            }
-        });
-
         //Decrypt Single mail
 /*        btDecrypt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,49 +247,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-        btDecryptAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        try {
-                            utilities.Authenticate();
-                            utilities.createConfig();
-                            utilities.readMails();
-                                    for (Message  encryptedMail:utilities.getMessages()) {
-
-                                        if (utilities.isEncrypted(encryptedMail)) {
-                                            String decryptedMailContent = utilities.readEncryptedMail(encryptedMail);
-
-                                            utilities.deleteMail(encryptedMail);
-
-                                            Message decryptedMail = utilities.createDecryptedMail(decryptedMailContent);
-                                            utilities.appendSingleMail(decryptedMail);
-                                        } else {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
-                                                    return;
-                                                }
-                                            });
-                                        }
-                            }
-
-                        } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }).start();
-
-        }
-    });
-
-
-
     }
+
+    @SuppressLint("ResourceType")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.layout.menu, menu);
+        return true;
+    }
+
+
 }

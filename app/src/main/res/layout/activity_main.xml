@@ -8,37 +8,9 @@
     android:layout_gravity="center"
     tools:context="com.example.E4_PoC.MainActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_encryptAll"
-        android:text="Encrypt All"
-        android:layout_marginTop="8dp"/>
+<include
+    android:id="@+id/toolbar"
+    layout="@layout/toolbar"/>
 
-<!--    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_decrypt"
-        android:text="Decrypt Single"
-        android:layout_marginTop="8dp"/>-->
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_decryptAll"
-        android:text="Decrypt All"
-        android:layout_marginTop="8dp"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_enableEncryptOnReceipt"
-        android:text="Enable Auto Encrypt"
-        android:layout_marginTop="8dp"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_composeNewMail"
-        android:text="Compose a new Mail"
-        android:layout_marginTop="8dp"/>
 
 </LinearLayout>

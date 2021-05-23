@@ -59,33 +59,6 @@ public class EmailUtilities {
        this.encryptionPassword = account.getEncryptionPassword();
    }
 
-   /* protected EmailUtilities(Parcel in) {
-        email = in.readString();
-        password = in.readString();
-
-    }
-
-    public static final Creator<EmailUtilities> CREATOR = new Creator<EmailUtilities>() {
-        @Override
-        public EmailUtilities createFromParcel(Parcel in) {
-            return new EmailUtilities(in);
-        }
-
-        @Override
-        public EmailUtilities[] newArray(int size) {
-            return new EmailUtilities[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {return 0;}
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(email);
-        dest.writeString(password);
-    }
-*/
     public Message [] getMessages(){
         return messages;
     }
@@ -500,7 +473,7 @@ public class EmailUtilities {
     }
 
 
-    private String getTextFromMessage(Message message) throws MessagingException, IOException {
+    public String getTextFromMessage(Message message) throws MessagingException, IOException {
         String result = "";
         if (message.isMimeType("text/plain")) {
             result = message.getContent().toString();

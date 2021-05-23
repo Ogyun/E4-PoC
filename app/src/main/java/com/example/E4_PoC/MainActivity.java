@@ -16,15 +16,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.E4_PoC.R;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.mail.Message;
+import javax.mail.MessagingException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,7 +40,12 @@ public class MainActivity extends AppCompatActivity {
     EmailAccount account;
     AlertDialog.Builder builder;
 
+    ArrayAdapter<String> adapter;
+    ArrayList<String> arrayList;
+    ListView listView;
+
     public void encryptAll(MenuItem mi){
+        Toast.makeText(getApplicationContext(), "Encrypting all mails ...", Toast. LENGTH_LONG).show();
         new Thread(new Runnable() {
 
             @Override
@@ -73,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void decryptAll(MenuItem mi){
+        Toast.makeText(getApplicationContext(), "Decrypting mails ....", Toast. LENGTH_LONG).show();
         new Thread(new Runnable() {
 
             @Override
@@ -82,25 +94,35 @@ public class MainActivity extends AppCompatActivity {
                     utilities.Authenticate();
                     utilities.createConfig();
                     utilities.readMails();
+                    arrayList.clear();
                     for (Message  encryptedMail:utilities.getMessages()) {
 
                         if (utilities.isEncrypted(encryptedMail)) {
                             String decryptedMailContent = utilities.readEncryptedMail(encryptedMail);
 
-                            utilities.deleteMail(encryptedMail);
+                           // utilities.deleteMail(encryptedMail);
 
-                            Message decryptedMail = utilities.createDecryptedMail(decryptedMailContent);
-                            utilities.appendSingleMail(decryptedMail);
+                            arrayList.add(decryptedMailContent);
+
+                        //    Message decryptedMail = utilities.createDecryptedMail(decryptedMailContent);
+                          //  utilities.appendSingleMail(decryptedMail);
                         } else {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MainActivity.this, "Message is already decrypted", Toast.LENGTH_LONG).show();
                                     return;
                                 }
                             });
                         }
                     }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            return;
+                        }
+                    });
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -111,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void enableAutoEncrypt(MenuItem mi){
+        Toast.makeText(getApplicationContext(), "Encrypt on receipt is enabled", Toast. LENGTH_LONG).show();
         new Thread(new Runnable() {
 
             @Override
@@ -123,14 +146,14 @@ public class MainActivity extends AppCompatActivity {
                     while(true){
                         boolean newMail = utilities.hasNewMail();
                         if(newMail){
-                            for (Message  lastMail:utilities.getMessages()) {
+                            for (Message  mail:utilities.getMessages()) {
 
 
                                 // Message lastMail = utilities.getLastMail();
-                                if (!utilities.isEncrypted(lastMail)) {
-                                    byte[] plainMail = utilities.readPlainMailAsByteArray(lastMail);
+                                if (!utilities.isEncrypted(mail)) {
+                                    byte[] plainMail = utilities.readPlainMailAsByteArray(mail);
 
-                                    utilities.deleteMail(lastMail);
+                                    utilities.deleteMail(mail);
 
                                     Message encryptedMessage = utilities.createEncryptedMail(plainMail);
                                     utilities.appendSingleMail(encryptedMessage);
@@ -140,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             Thread.sleep(5000);
                         } else{
+                            Log.d("No new messages", "No new messages");
                             Thread.sleep(5000);
                         }
                     }
@@ -158,13 +182,62 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void readMails(MenuItem mi){
 
+        Toast.makeText(getApplicationContext(), "Loading new mails", Toast. LENGTH_LONG).show();        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    utilities.Authenticate();
+                    utilities.createConfig();
+                    utilities.readMails();
+
+                   //For automatic inbox refresh
+                  //  while (true) {
+
+                        boolean newMail = utilities.hasNewMail();
+                        arrayList.clear();
+                        if (newMail) {
+                            for (Message mail : utilities.getMessages()) {
+
+                                    String content = utilities.getTextFromMessage(mail);
+                                    arrayList.add(content);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.notifyDataSetChanged();
+
+                                        }
+                                    });
+                            }
+                          //  Thread.sleep(5000);
+                        } else {
+                            Log.d("No new messages", "No new messages");
+                          //  Thread.sleep(5000);
+                        }
+                   // }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }).start();
+
+    }
 
     @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        listView = (ListView) findViewById(R.id.listView);
+        arrayList = new ArrayList<String>();
+        adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayList);
+        listView.setAdapter(adapter);
 
         //Create toolbar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -210,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
                 else if (encryptionPwd.getText().toString().equals(confirmEncryptionPwd.getText().toString())) {
                     account.setEncryptionPassword(encryptionPwd.getText().toString());
                     utilities = new EmailUtilities(MainActivity.this,account);
+
                     dialog.dismiss();
                 }
                 else {
@@ -243,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });*/
-
     }
 
     @SuppressLint("ResourceType")

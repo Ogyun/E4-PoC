@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
 
     public void encryptAll(MenuItem mi){
-        Toast.makeText(getApplicationContext(), "Encrypting all mails ...", Toast. LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Encrypting all emails on server ...", Toast. LENGTH_LONG).show();
         new Thread(new Runnable() {
 
             @Override
@@ -65,13 +65,7 @@ public class MainActivity extends AppCompatActivity {
                             Message encryptedtedMail = utilities.createEncryptedMail(decryptedMailContent);
                             utilities.appendSingleMail(encryptedtedMail);
                         } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "Message is already encrypted", Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                            });
+                            Log.d("Message Encrypted","Message is already encrypted");
                         }
                     }
 
@@ -103,26 +97,21 @@ public class MainActivity extends AppCompatActivity {
                            // utilities.deleteMail(encryptedMail);
 
                             arrayList.add(decryptedMailContent);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.notifyDataSetChanged();
+                                    return;
+                                }
+                            });
 
                         //    Message decryptedMail = utilities.createDecryptedMail(decryptedMailContent);
                           //  utilities.appendSingleMail(decryptedMail);
                         } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "Message is already decrypted", Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                            });
+                            Toast.makeText(MainActivity.this, "Message is already decrypted", Toast.LENGTH_LONG).show();
                         }
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetChanged();
-                            return;
-                        }
-                    });
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -184,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void readMails(MenuItem mi){
 
+        read();
+
+    }
+    public void read(){
         Toast.makeText(getApplicationContext(), "Loading new mails", Toast. LENGTH_LONG).show();        new Thread(new Runnable() {
             @Override
             public void run() {
@@ -193,30 +186,30 @@ public class MainActivity extends AppCompatActivity {
                     utilities.createConfig();
                     utilities.readMails();
 
-                   //For automatic inbox refresh
-                  //  while (true) {
+                    //For automatic inbox refresh
+                    //  while (true) {
 
-                        boolean newMail = utilities.hasNewMail();
-                        arrayList.clear();
-                        if (newMail) {
-                            for (Message mail : utilities.getMessages()) {
+                    boolean newMail = utilities.hasNewMail();
+                    arrayList.clear();
+                    if (newMail) {
+                        for (Message mail : utilities.getMessages()) {
 
-                                    String content = utilities.getTextFromMessage(mail);
-                                    arrayList.add(content);
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.notifyDataSetChanged();
+                            String content = utilities.getTextFromMessage(mail);
+                            arrayList.add(content);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.notifyDataSetChanged();
 
-                                        }
-                                    });
-                            }
-                          //  Thread.sleep(5000);
-                        } else {
-                            Log.d("No new messages", "No new messages");
-                          //  Thread.sleep(5000);
+                                }
+                            });
                         }
-                   // }
+                        //  Thread.sleep(5000);
+                    } else {
+                        Log.d("No new messages", "No new messages");
+                        //  Thread.sleep(5000);
+                    }
+                    // }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -225,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }).start();
-
     }
 
     @SuppressLint("WrongConstant")
@@ -283,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                 else if (encryptionPwd.getText().toString().equals(confirmEncryptionPwd.getText().toString())) {
                     account.setEncryptionPassword(encryptionPwd.getText().toString());
                     utilities = new EmailUtilities(MainActivity.this,account);
-
+                    read();
                     dialog.dismiss();
                 }
                 else {
